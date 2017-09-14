@@ -1,0 +1,15 @@
+---
+- unarchive: src=nginx-{{ nginx_version }}.tgz dest=/opt
+#- copy: src=nginx-{{ nginx_version }}/sbin/nginx dest=/opt/nginx-{{ nginx_version }}/sbin/nginx
+#- name: add nginx bin to PATH
+- template: src=nginx.sh dest=/etc/profile.d/nginx.sh
+- template: src=nginx.conf dest=/opt/nginx-{{ nginx_version }}/conf/
+- copy: src=htpasswd.users dest=/opt/nginx-{{ nginx_version }}/conf/
+- copy: src=linkagegame.com.crt dest=/opt/nginx-{{ nginx_version }}/conf/
+- copy: src=linkagegame.com.key dest=/opt/nginx-{{ nginx_version }}/conf/
+- shell: . /etc/profile.d/nginx.sh
+#- name: add nginx init
+- template: src=nginx dest=/etc/init.d/nginx mode=0755
+#- name: source profile
+- shell: chkconfig --add nginx | chkconfig nginx on
+- service: name=nginx state=started

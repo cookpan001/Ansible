@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# redis_cluster - this script starts and stops redis cluster daemon
+#
+# chkconfig:   - 85 15
+# description:  redis_cluster
+  
+# Source function library.
+. /etc/rc.d/init.d/functions
+  
+# Source networking configuration.
+. /etc/sysconfig/network
+
+
+export REDIS_HOME=/opt/redis-{{ redis_version }}
+
+case "$1" in
+	'create' )
+        python $REDIS_HOME/redis_cluster.py $REDIS_HOME/redis_list.cfg create
+        ;;
+    'start' )
+        python $REDIS_HOME/redis_cluster.py $REDIS_HOME/redis_list.cfg start
+        ;;
+    'stop' )
+        python $REDIS_HOME/redis_cluster.py $REDIS_HOME/redis_list.cfg stop
+        ;;
+    'restart' )
+        python $REDIS_HOME/redis_cluster.py $REDIS_HOME/redis_list.cfg stop
+        python $REDIS_HOME/redis_cluster.py $REDIS_HOME/redis_list.cfg start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}" >&2
+        ;;
+esac

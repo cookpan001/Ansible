@@ -1,0 +1,37 @@
+- user: name=mysql
+- name: install mysql community YUM repo 7
+  yum: name=https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm state=present
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+- name: install the latest version of Mysql
+  yum: name=mysql-community-server state=present
+- name: add mysql config file
+  template: src=el7.cnf dest=/etc/my.cnf
+- name: create mysql data dir
+  file: path={{ mysql_data_dir }} state=directory owner=mysql group=mysql
+- name: create mysql logs dir
+  file: path={{ mysql_data_dir }}/logs state=directory owner=mysql group=mysql
+- name: create mysql socket dir
+  file: path={{ mysql_data_dir }}/socket state=directory owner=mysql group=mysql
+- name: initialize mysql data dir
+  shell: mysqld --initialize --user=mysql --explicit_defaults_for_timestamp --datadir={{ mysql_data_dir }}/{{ mysql_port }} &> /tmp/mysqld-{{ mysql_port }}.log
+- name: Launch MySQL service
+  service:
+    name: mysqld@{{ mysql_port }}
+    enabled: yes
+    state: started
+- name: copy .my.cnf file with root password credentials
+  template: src=mylogin.cnf dest=~/.my.cnf mode=0600
+- name: Get temporary MySQL root password
+  shell: grep 'temporary password' /tmp/mysqld-{{ mysql_port }}.log | awk '{print $NF}'
+  register: mysql_root_temp_password
+- name: Set the MySQL root password
+  shell: mysqladmin -u root -S {{ mysql_data_dir }}/socket/mysql-{{ mysql_port }}.sock -P {{ mysql_port }} --password="{{ mysql_root_temp_password.stdout }}" password "{{ mysql_root_pass }}"
+- name: Install required python MySQLdb lib to create databases and users
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gcc-c++
+    - MySQL-python
+- mysql_user: login_port={{ mysql_master_port }} login_user=root login_password={{ mysql_root_pass }} login_unix_socket={{ mysql_data_dir }}/socket/mysql-{{ mysql_port }}.sock name=backup host="%" password="{{ mysql_backup_pass }}" priv="*.*:REPLICATION SLAVE" state=present
+- mysql_user: login_port={{ mysql_master_port }} login_user=root login_password={{ mysql_root_pass }} login_unix_socket={{ mysql_data_dir }}/socket/mysql-{{ mysql_port }}.sock name=developer host="%" password="{{ mysql_developer_pass }}" priv="*.*" state=present

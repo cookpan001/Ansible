@@ -1,0 +1,6 @@
+---
+- yum: name=haproxy state=latest
+- template: src=haproxy dest=/etc/init.d/haproxy mode=0755
+- template: src=haproxy.cfg dest=/etc/haproxy/
+- shell: chkconfig --add haproxy | chkconfig haproxy on
+- service: name=haproxy state=restarted

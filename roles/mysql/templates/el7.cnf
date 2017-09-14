@@ -1,0 +1,31 @@
+[mysqld@3401]
+user            = mysql
+port            = 3401
+socket          = {{ mysql_data_dir }}/socket/mysql-3401.sock
+log-error		= {{ mysql_data_dir }}/logs/mysqld-3401.log
+datadir         = {{ mysql_data_dir }}/3401
+skip-external-locking
+skip-name-resolve
+log-bin=mysql-bin
+server-id       = 1
+innodb_buffer_pool_size = 128M
+default-time-zone = '+8:00'
+symbolic-links=0
+#skip-grant-tables
+binlog-ignore-db = information_schema, performance_schema, sys
+[mysqld@3402]
+user            = mysql
+port            = 3402
+socket          = {{ mysql_data_dir }}/socket/mysql-3402.sock
+log-error		= {{ mysql_data_dir }}/logs/mysqld-3402.log
+datadir         = {{ mysql_data_dir }}/3402/
+skip-external-locking
+skip-name-resolve
+log-bin=mysql-bin
+server-id       = 2
+innodb_buffer_pool_size = 128M
+default-time-zone = '+8:00'
+symbolic-links=0
+read_only=1
+binlog-ignore-db = information_schema, performance_schema, sys
+#skip-grant-tables

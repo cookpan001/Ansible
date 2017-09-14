@@ -1,0 +1,4 @@
+---
+- template: src=egs dest=/etc/init.d/ mode=0755
+- shell: chkconfig --add egs
+- shell: chkconfig egs on

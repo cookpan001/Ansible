@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# egs - this script starts and stops egs daemon
+#
+# chkconfig:   - 85 15
+# description:  egs is LinkAge Socet/TCP daemon process
+  
+# Source function library.
+. /etc/rc.d/init.d/functions
+  
+# Source networking configuration.
+. /etc/sysconfig/network
+case "$1" in
+    'start' )
+        /data/egs/start_service
+        ;;
+    'stop' )
+        pgrep beam|xargs kill -9
+        ;;
+    'restart' )
+        pgrep beam|xargs kill -9
+        /data/egs/start_service
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}" >&2
+        ;;
+esac

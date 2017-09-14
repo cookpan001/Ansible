@@ -1,0 +1,19 @@
+[mysqld]
+user=mysql
+port=3404
+socket={{ mysql_base_dir }}/socket/mysql-3404.sock
+pid-file={{ mysql_base_dir }}/pid/mysql-3404.pid
+basedir={{ mysql_base_dir }}/
+datadir={{ mysql_data_dir }}/3404
+skip-external-locking
+skip-name-resolve
+log-bin=mysql-bin
+server-id=4
+innodb_buffer_pool_size=128M
+default-time-zone='+8:00'
+symbolic-links=0
+log-error={{ mysql_base_dir }}/logs/mysqld-3404.log
+#skip-grant-tables
+binlog-ignore-db=information_schema, performance_schema, sys
+master_info_repository=TABLE
+relay_log_info_repository=TABLE

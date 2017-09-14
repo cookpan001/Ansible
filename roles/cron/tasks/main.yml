@@ -1,0 +1,8 @@
+---
+- cronvar: name=EMAIL value=""
+- cron: name="rsync bi log" user="{{ user }}" minute="0" job="sh /app/env/aws/cron/rsync.sh >> /tmp/rsync.log"
+- cron: name="rsync realtime log" user="{{ user }}" job="sh /app/env/aws/cron/ra.sh >> /tmp/ra.log"
+- cron: name="event handler" user="{{ user }}" job="/opt/php-{{ php_version }}/bin/php /data/app/cron/event_handler.php >> /tmp/event_handler.log 2>&1"
+- cron: name="tournament event" user="{{ user }}" job="/opt/php-{{ php_version }}/bin/php /app/cron/tournament_event.php >> /tmp/tournament_event.log"
+- cron: name="clean tile" user="{{ user }}" minute="1" hour="0" job="/opt/php-{{ php_version }}/bin/php /app/cron/cleanTile.php >> /tmp/cleanTile.log"
+- cron: name="google pay token" user="{{ user }}" job="/opt/php-{{ php_version }}/bin/php /app/cron/freshGooglePayToken.php aws >> /tmp/fresh_google_token.log.log"

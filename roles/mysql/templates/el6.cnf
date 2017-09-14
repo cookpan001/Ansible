@@ -1,0 +1,39 @@
+[mysqld_multi]
+mysqld     = /usr/sbin/mysqld_safe
+mysqladmin = /usr/bin/mysqladmin
+user = mysql
+[mysqld1]
+user            = mysql
+port            = 3401
+socket          = {{ mysql_base_dir }}/socket/mysql-3401.sock
+pid-file        = {{ mysql_base_dir }}/pid/mysql-3401.pid
+basedir         = {{ mysql_base_dir }}/
+datadir         = {{ mysql_data_dir }}/3401
+skip-external-locking
+skip-name-resolve
+log-bin=mysql-bin
+server-id       = 1
+innodb_buffer_pool_size = 128M
+default-time-zone = '+8:00'
+symbolic-links=0
+log-error={{ mysql_base_dir }}/logs/mysqld-3401.log
+#skip-grant-tables
+binlog-ignore-db = information_schema, performance_schema, sys
+[mysqld2]
+user            = mysql
+port            = 3402
+socket          = {{ mysql_base_dir }}/socket/mysql-3402.sock
+pid-file        = {{ mysql_base_dir }}/pid/mysql-3402.pid
+basedir         = {{ mysql_base_dir }}/
+datadir         = {{ mysql_data_dir }}/3402/
+skip-external-locking
+skip-name-resolve
+log-bin=mysql-bin
+server-id       = 2
+innodb_buffer_pool_size = 128M
+default-time-zone = '+8:00'
+symbolic-links=0
+log-error={{ mysql_base_dir }}/logs/mysqld-3402.log
+read_only=1
+binlog-ignore-db = information_schema, performance_schema, sys
+#skip-grant-tables

@@ -1,0 +1,14 @@
+---
+- group: name={{ group }} state=present
+- name: add user
+  user: name={{ user }} comment="{{ user }}" group={{ group }}
+- authorized_key: user={{ user }} key="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAqqcCKgerbEsGlII0z20SWKPJx7CXcUa0uyEmqIXrruoIXBuBh1fIb9thocoBtkEXQK14U0D9T7A2A9xmvpduGDO4nG7OHy3QNIeyNtZ0LK0Dx2iqdoAx/TUlqiMWRT3cdDZ4EIhV3sSuNxpky31GI5ZF+O3jk4K6KCSBqMgsieV9IbZ4N22w6pK+P7akPzHpVe6NY1C0ZDtHl+mDhctWJwnhBUFfDt4T6EsSCyA0B2n7PLmWU3zyNGovCigmO4QPIIsfQThwwyYrhAvr1IpU3378srwIYmw8smGGU3sbmEQPFv0zBFbI6qbtgWGjzgoGOGAGQQVER8Mp5C/2PshV+Q== adam@linkage-dev"
+- user: name=pzhu
+- authorized_key: user=pzhu key="{{ lookup('file', '/Users/pzhu/.ssh/id_rsa.pub') }}"
+  sudo: yes
+- authorized_key: user=root key="{{ lookup('file', '/Users/pzhu/.ssh/id_rsa.pub') }}"
+  sudo: yes
+- yum: name=epel-release state=present
+- yum: name=net-tools state=present
+- selinux:
+    state: disabled

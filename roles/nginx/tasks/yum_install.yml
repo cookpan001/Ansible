@@ -1,0 +1,10 @@
+---
+- yum: name=nginx state=present
+- template: src=nginx.conf dest=/etc/nginx/
+- copy: src=htpasswd.users dest=/etc/nginx/
+- copy: src=linkagegame.com.crt dest=/etc/nginx/
+- copy: src=linkagegame.com.key dest=/etc/nginx/
+- file: path=/usr/share/nginx/logs state=directory owner={{ user }} group={{ group }}
+- shell: "touch /usr/share/nginx/logs/error.log"
+- file: path=/usr/share/nginx/logs/error.log owner={{ user }} group={{ group }}
+- service: name=nginx state=restarted

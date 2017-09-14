@@ -1,0 +1,13 @@
+---
+- get_url: url={{ download_host }}/php-{{ php_version }}.tgz dest=/opt
+- shell: "cd /opt; tar xzf php-{{ php_version }}.tgz"
+- template: src=php.sh dest=/etc/profile.d/php.sh
+- shell: . /etc/profile.d/php.sh
+- template: src=php-fpm dest=/etc/init.d/php-fpm mode=0755
+- shell: chkconfig --add php-fpm | chkconfig php-fpm on
+# php7
+- template: src=www.conf dest=/opt/php-{{ php_version }}/etc/php-fpm.d/www.conf mode=0644
+- template: src=php.ini dest=/opt/php-{{ php_version }}/lib/ mode=0644
+- yum: name=libpng12 state=present
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+- service: name=php-fpm state=restarted

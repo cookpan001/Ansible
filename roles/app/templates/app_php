@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# App_PHP - this script starts and stops app daemon
+#
+# chkconfig:   - 85 15
+# description:  App_PHP is LinkAge Game daemon process
+  
+# Source function library.
+. /etc/rc.d/init.d/functions
+  
+# Source networking configuration.
+. /etc/sysconfig/network
+case "$1" in
+    'start' )
+        /opt/php-{{ php_version }}/bin/php {{ app_php_path }}/bin/commander.php start
+        ;;
+    'stop' )
+        /opt/php-{{ php_version }}/bin/php {{ app_php_path }}/bin/commander.php stop
+        ;;
+    'restart' )
+        /opt/php-{{ php_version }}/bin/php {{ app_php_path }}/bin/commander.php restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}" >&2
+        ;;
+esac

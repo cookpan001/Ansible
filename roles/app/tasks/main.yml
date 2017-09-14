@@ -1,0 +1,4 @@
+---
+- template: src=app_php dest=/etc/init.d/ mode=0755
+- shell: chkconfig --add app_php
+- shell: chkconfig app_php on

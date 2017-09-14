@@ -1,0 +1,5 @@
+---
+#- unarchive: src=erlang.tar.bz2 dest=/usr/local
+- get_url: url={{ download_host }}/erlang.tar.bz2 dest=/usr/local
+- shell: "cd /usr/local; tar xjf erlang.tar.bz2"
+- template: src=erlang.sh dest=/etc/profile.d/ mode=0755

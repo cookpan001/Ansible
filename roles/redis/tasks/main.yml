@@ -1,0 +1,14 @@
+---
+
+- name: push redis binary packages to redis hosts
+  get_url: url={{ download_host }}/redis-{{ redis_version }}.tgz dest=/opt
+- shell: "cd /opt; tar xzf redis-{{ redis_version }}.tgz"
+- name: add redis redis_cluster python shell
+  copy: src=redis_cluster.py dest=/opt/redis-{{ redis_version }}/
+- name: add redis list
+  copy: src=redis_list.cfg dest=/opt/redis-{{ redis_version }}/
+- name: add redis bin to PATH
+  template: src=redis.sh dest=/etc/profile.d/redis.sh
+- template: src=redis_cluster dest=/etc/init.d/ mode=0755
+- shell: chkconfig --add redis_cluster
+- shell: chkconfig redis_cluster on

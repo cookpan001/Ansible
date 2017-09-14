@@ -1,0 +1,70 @@
+- user: name=mysql
+- name: install mysql community YUM repo 6
+  yum: name=https://dev.mysql.com/get/mysql57-community-release-el6-8.noarch.rpm state=present
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+- name: install the latest version of Mysql
+  yum: name=mysql-community-server state=present
+- name: add mysql config file
+  template: src=el6.cnf dest=/etc/my.cnf
+- name: add mysql init
+  template: src=mysqld_multi dest=/etc/init.d/mysqld_multi mode=0755
+- name: add mysql chkconfig
+  shell: chkconfig --add mysqld_multi | chkconfig mysqld_multi on
+- name: create mysql data dir
+  file: path={{ mysql_data_dir }} state=directory owner=mysql group=mysql
+- name: create mysql logs dir
+  file: path={{ mysql_data_dir }}/logs state=directory owner=mysql group=mysql
+- name: create mysql socket dir
+  file: path={{ mysql_data_dir }}/socket state=directory owner=mysql group=mysql
+- name: initialize mysql data dir
+  shell: mysqld --initialize --user=mysql --explicit_defaults_for_timestamp --datadir={{ mysql_data_dir }}/{{ item }} &> /tmp/mysqld-{{ item }}.log
+  with_items:
+    - [3401, 3402]
+- name: Launch MySQL service
+  service:
+    name: mysqld_multi
+    state: started
+    enabled: yes
+- name: Install required python MySQLdb lib to create databases and users
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - gcc-c++
+    - MySQL-python
+- name: copy .my.cnf file with root password credentials
+  template: src=mylogin.cnf dest=~/.my.cnf mode=0600
+- name: Get temporary MySQL root password
+  shell: grep 'temporary password' /tmp/mysqld-{{ item }}.log | awk '{print $NF}'
+  with_items:
+    - [3401, 3402]
+  register: mysql_root_temp_password
+- name: Set the MySQL root password
+  shell: mysqladmin -u root -S {{ mysql_data_dir }}/socket/mysql-{{ item.item }}.sock -P {{ item.item }} --password="{{ item.stdout }}" password "{{ mysql_root_pass }}"
+  with_items: "{{ mysql_root_temp_password.results }}"
+- name: Install required python MySQLdb lib to create databases and users
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gcc-c++
+    - MySQL-python
+- mysql_user: login_port=3401 login_user=root login_password={{ mysql_root_pass }} login_unix_socket={{ mysql_data_dir }}/socket/mysql-3401.sock name=backup host="%" password="{{ mysql_backup_pass }}" priv="*.*:REPLICATION SLAVE" state=present
+- name: Get the current master servers replication status
+  mysql_replication: login_port=3401 login_user=root login_password={{ mysql_root_pass }} login_unix_socket={{ mysql_data_dir }}/socket/mysql-3401.sock mode=getmaster
+  register: repl_stat
+- name: Change the master in slave to start the replication
+  shell: mysql -uroot -P{{ item }} -p{{ mysql_root_pass }} -S {{ mysql_data_dir }}/socket/mysql-{{ item }}.sock -e "stop slave"
+  with_items: 
+    - [3402]
+  ignore_errors: True
+- name: Change the master in slave to start the replication
+  shell: mysql -uroot -P{{ item }} -p{{ mysql_root_pass }} -S {{ mysql_data_dir }}/socket/mysql-{{ item }}.sock -e "change master to master_host='127.0.0.1',master_port=3401,master_log_file='{{ repl_stat.File }}',master_log_pos={{ repl_stat.Position }},master_user='backup',master_password='{{ mysql_backup_pass }}'"
+  with_items: 
+    - [3402]
+  ignore_errors: True
+- name: Change the master in slave to start the replication
+  shell: mysql -uroot -P{{ item }} -p{{ mysql_root_pass }} -S {{ mysql_data_dir }}/socket/mysql-{{ item }}.sock -e "start slave"
+  with_items: 
+    - [3402]
+  ignore_errors: True

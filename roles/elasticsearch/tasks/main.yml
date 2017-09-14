@@ -1,0 +1,15 @@
+---
+#- get_url: url={{ download_host }}/jdk-8u66-linux-x64.rpm dest=/opt
+#- yum: name=/opt/jdk-8u66-linux-x64.rpm state=present
+- get_url: url={{ download_host }}/elasticsearch-{{ es_version }}.tar.gz dest=/opt
+- name: unarchive elasticsearch binary packages
+  shell: "cd /opt; tar xzf elasticsearch-{{ es_version }}.tar.gz"
+- name: add es init
+  template: src=elasticsearch dest=/etc/init.d/elasticsearch mode=0755
+- name: add es config
+  template: src=elasticsearch.yml dest=/opt/elasticsearch-{{ es_version }}/config
+- name: source profile
+  shell: chkconfig --add elasticsearch | chkconfig elasticsearch on
+#- file: path=/var/run/elasticsearch.pid owner={{ user }} group={{ group }}
+- file: path={{ es_data_dir }} state=directory owner={{ user }} group={{ group }}
+- service: name=elasticsearch state=started

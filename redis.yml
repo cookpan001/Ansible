@@ -1,0 +1,15 @@
+---
+- hosts: redis
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: push redis binary packages to redis hosts
+      unarchive: src=packages/redis-{{ redis_version }}.tgz dest=/opt
+    - name: add redis redis_cluster python shell
+      copy: src=config/redis_cluster.py dest=/opt/redis-{{ redis_version }}/
+    - name: add redis list
+      copy: src=config/redis_list.cfg dest=/opt/redis-{{ redis_version }}/
+    - name: add redis bin to PATH
+      template: src=profile/redis.sh dest=/etc/profile.d/redis.sh
+    - name: source profile
+      shell: . /etc/profile.d/redis.sh

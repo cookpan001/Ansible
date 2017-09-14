@@ -1,0 +1,21 @@
+---
+## This playbook deploys the whole application stack in this site.  
+
+# Apply common configuration to all hosts
+- hosts: all
+  roles:
+    - common
+
+# Configure and deploy database servers.
+- hosts: dbservers
+  roles:
+    - mysql
+
+- hosts: redis
+  roles:
+    - redis
+
+- hosts: app
+  roles:
+    - nginx
+    - php

@@ -1,0 +1,31 @@
+---
+- hosts: vps
+  remote_user: root
+  gather_facts: no
+  vars:
+     server_name: "*.linkagegame.com"
+     document_root: "/app"
+     nginx_version: "1.10.0"
+     base_dir: "/opt/nginx-{{ nginx_version }}"
+     user: "adam"
+     group: "adam"
+     fpm_port: 9001
+  tasks:
+    #- name: push nginx binary packages to app hosts
+    - unarchive: src=packages/nginx-{{ nginx_version }}.tgz dest=/opt
+    - copy: src=packages/nginx-{{ nginx_version }}/sbin/nginx dest=/opt/nginx-{{ nginx_version }}/sbin/nginx
+    #- name: add user adam
+    #  user: name=adam comment="adam" group=adam
+    #- name: add nginx bin to PATH
+    - template: src=profile/nginx.sh dest=/etc/profile.d/nginx.sh
+    - template: src=config/nginx.conf dest=/opt/nginx-{{ nginx_version }}/conf/
+    #- copy: src=config/htpasswd.users dest=/opt/nginx-{{ nginx_version }}/conf/
+    #- name: source profile
+    #  shell: . /etc/profile.d/nginx.sh
+    #- name: add nginx init
+    - template: src=config/nginx dest=/etc/init.d/nginx mode=0755
+    #- name: source profile
+    - shell: chkconfig --add nginx | chkconfig nginx on
+    #- service: name=nginx state=restarted
+    #- name: cron
+    #  cron: name="a job for reboot" minute="0" job="/some/job.sh"

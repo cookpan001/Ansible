@@ -1,0 +1,22 @@
+---
+- hosts: vps
+  remote_user: root
+  gather_facts: no
+  vars:
+    php_version: "7.0.7"
+    user: "adam"
+    group: "adam"
+    port: 9001
+  tasks:
+    - unarchive: src=packages/php-{{ php_version }}.tgz dest=/opt
+    - template: src=profile/php.sh dest=/etc/profile.d/php.sh
+    - shell: . /etc/profile.d/php.sh
+    - template: src=config/php-fpm dest=/etc/init.d/php-fpm mode=0755
+    - shell: chkconfig --add php-fpm | chkconfig php-fpm on
+    # php5.6
+    #- template: src=config/php-fpm.conf dest=/opt/php-{{ php_version }}/etc/php-fpm.conf mode=0644
+    # php7
+    - copy: src=config/www.conf dest=/opt/php-{{ php_version }}/etc/php-fpm.d/www.conf mode=0644
+    #- cron: name="rsync bi log" user="adam" minute="0" job="sh /app/env/aws/cron/rsync.sh >> /tmp/rsync.log"
+    #- cron: name="rsync realtime log" user="adam" job="sh /app/env/aws/cron/ra.sh >> /tmp/ra.log"
+    - service: name=php-fpm state=restarted

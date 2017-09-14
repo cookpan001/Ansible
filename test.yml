@@ -1,0 +1,17 @@
+---
+## This playbook deploys the whole application stack in this site.  
+
+# Apply common configuration to all hosts
+- hosts: beta
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  roles:
+    #- defaults
+    #- nginx
+    #- php
+    #- redis
+    #- mysql
+    #- erlang
+    - { role: "elasticsearch", master: "true"}
+    #- { role: "mysql_slave", mysql_port: 3404, mysql_master_host: "127.0.0.1", mysql_master_port: 3401}

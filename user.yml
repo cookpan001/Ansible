@@ -1,0 +1,11 @@
+---
+- hosts: test
+  remote_user: root
+#- name: give users access to multiple databases
+  tasks:
+    - shell: grep 'temporary password' /root/mysqld-{{ item }}.log | awk '{print $NF}'
+      with_items:
+        - [ 3401, 3402 ]
+      register: test
+    - shell: echo "The command ({{ item.stdout }}) "
+      with_items: "{{ test.results }}"

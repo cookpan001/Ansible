@@ -1,0 +1,33 @@
+---
+- hosts: es_slave
+  remote_user: root
+  vars:
+    es_version: "2.3.3"
+    es_data_dir: "/data/es"
+    es_hosts: ["172.31.31.161", "172.31.31.162"]
+    es_user: "adam"
+    es_group: "adam"
+    master: "false"
+  tasks:
+    - name: add es init
+      template: src=config/elasticsearch dest=/etc/init.d/elasticsearch mode=0755
+    - name: add es config
+      template: src=config/elasticsearch.yml dest=/opt/elasticsearch-{{ es_version }}/config
+    - name: source profile
+      shell: chkconfig --add elasticsearch | chkconfig elasticsearch on
+- hosts: es_master
+  remote_user: root
+  vars:
+    es_version: "2.3.3"
+    es_data_dir: "/data/es"
+    es_hosts: ["172.31.31.161", "172.31.31.162"]
+    es_user: "adam"
+    es_group: "adam"
+    master: "true"
+  tasks:
+    - name: add es init
+      template: src=config/elasticsearch dest=/etc/init.d/elasticsearch mode=0755
+    - name: add es config
+      template: src=config/elasticsearch.yml dest=/opt/elasticsearch-{{ es_version }}/config
+    - name: source profile
+      shell: chkconfig --add elasticsearch | chkconfig elasticsearch on

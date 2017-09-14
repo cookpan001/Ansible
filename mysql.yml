@@ -1,0 +1,30 @@
+---
+- hosts: mysql
+  remote_user: root
+  vars:
+    mysql_version: "5.7.12"
+    base_dir: "/opt/mysql-{{ mysql_version }}"
+    data_dir: "/data/mysql"
+    root_pass: "link@ge160525"
+    developer_pass: "p@ssword!linkage"
+    backup_pass: "link@gesync16"
+  tasks:
+    #- name: install mysql community YUM repo EL6
+    #  yum: name=http://dev.mysql.com/get/mysql57-community-release-el6-8.noarch.rpm state=latest
+    - name: install mysql community YUM repo EL7
+      yum: name=https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm state=latest
+    - name: install the latest version of Mysql
+      yum: name=mysql-community-server state=latest
+    - name: add mysql config file
+      yum: src=config/my.cnf dest=/etc/my.cnf
+    - name: add mysql config file
+      template: src=config/my.cnf dest=/etc/my.cnf
+    - name: add mysql init
+      template: src=config/mysqld_multi dest=/etc/init.d/mysqld_multi
+    - name: add mysql chkconfig
+      shell: chkconfig --add mysqld_multi | chkconfig mysqld_multi on
+    - name: create mysql data dir
+      shell: mkdir {{ data_dir }} | chown -R mysql:mysql {{ data_dir }}
+    #- name: start mysql
+    #  service: name=mysqld_multi state=started
+

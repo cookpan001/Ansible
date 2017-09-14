@@ -1,0 +1,10 @@
+---
+- hosts: app
+  remote_user: root
+  vars:
+     server_name: "cvc.linkagegame.com"
+  tasks:
+    - name: rsync bi log every hour
+      cron: name="rsync bi log every hour" minute="2" job="/app/env/aws/cron/rsync.sh"
+    - name: rsync realtime log
+      cron: name="rsync realtime log" job="/app/env/aws/cron/ra.sh"
